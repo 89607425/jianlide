@@ -71,7 +71,7 @@ def export_polish(
     except ValueError as e:
         return {"code": 4002, "message": str(e), "data": None}
 
-    ext_map = {"pdf": ".pdf", "docx": ".pdf", "word": ".docx", "txt": ".txt", "md": ".md"}
+    ext_map = {"pdf": ".pdf", "docx": ".docx", "word": ".docx", "txt": ".txt", "md": ".md"}
     safe_name = resume.file_name.rsplit(".", 1)[0] if "." in resume.file_name else resume.file_name
     filename = f"{safe_name}_润色版{ext_map.get(fmt, f'.{fmt}')}"
     encoded_filename = quote(filename)

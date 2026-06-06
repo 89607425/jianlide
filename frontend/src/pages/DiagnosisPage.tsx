@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import ScoreBar from '../components/ScoreBar';
 import LoadingSpinner from '../components/LoadingSpinner';
+import ProgressLoading from '../components/ProgressLoading';
 import RadarChart from '../components/RadarChart';
 import type { DiagnosisResult, IssueItem, ChecklistItem } from '../types';
 
@@ -41,6 +42,7 @@ const DiagnosisPage: React.FC = () => {
   const isMember = getUserIsMember();
 
   const [loading, setLoading] = useState(true);
+  const [creatingNew, setCreatingNew] = useState(false);
   const [diagnosis, setDiagnosis] = useState<DiagnosisResult | null>(null);
   const [error, setError] = useState('');
 
@@ -75,6 +77,7 @@ const DiagnosisPage: React.FC = () => {
 
   const createDiagnosis = async () => {
     if (!resumeId || !token) return;
+    setCreatingNew(true);
     try {
       const res = await fetch('/api/v1/diagnoses', {
         method: 'POST',
@@ -91,6 +94,7 @@ const DiagnosisPage: React.FC = () => {
       setError('网络错误，请重试');
     } finally {
       setLoading(false);
+      setCreatingNew(false);
     }
   };
 
@@ -108,6 +112,16 @@ const DiagnosisPage: React.FC = () => {
   };
 
   if (loading) {
+    if (creatingNew) {
+      const stages = [
+        { label: '正在分析ATS通过率...', duration: 6000 },
+        { label: '正在评估内容质量...', duration: 7000 },
+        { label: '正在分析项目经历...', duration: 6000 },
+        { label: '正在评估岗位匹配度...', duration: 6000 },
+        { label: '生成诊断报告...', duration: 2000 },
+      ];
+      return <ProgressLoading stages={stages} />;
+    }
     return (
       <div className="max-w-4xl mx-auto px-4 py-20">
         <LoadingSpinner size="lg" text="正在加载诊断报告..." />

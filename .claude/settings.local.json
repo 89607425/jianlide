@@ -16,7 +16,9 @@
       "Bash(lsof:*)",
       "Bash(pip install python-docx)",
       "Bash(pip install:*)",
-      "Read(//System/Library/Fonts/Supplemental/**)"
+      "Read(//System/Library/Fonts/Supplemental/**)",
+      "Bash(pip3 install paramiko)",
+      "Bash(cat:*)"
     ],
     "deny": [],
     "ask": []

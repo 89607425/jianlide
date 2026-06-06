@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import LoadingSpinner from '../components/LoadingSpinner';
+import ProgressLoading from '../components/ProgressLoading';
 import type { PolishResult, DiffItem } from '../types';
 
 function getUserIsMember(): boolean {
@@ -24,6 +25,7 @@ const PolishPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'diff' | 'result'>('diff');
   const [customPrompt, setCustomPrompt] = useState('');
   const [needsCreate, setNeedsCreate] = useState(false);
+  const [creating, setCreating] = useState(false);
   const [exporting, setExporting] = useState('');
 
   useEffect(() => {
@@ -60,6 +62,7 @@ const PolishPage: React.FC = () => {
   const createPolish = async () => {
     if (!resumeId || !token) return;
     setLoading(true);
+    setCreating(true);
     try {
       const res = await fetch('/api/v1/polish', {
         method: 'POST',
@@ -77,6 +80,7 @@ const PolishPage: React.FC = () => {
       setError('网络错误，请重试');
     } finally {
       setLoading(false);
+      setCreating(false);
     }
   };
 
@@ -111,6 +115,14 @@ const PolishPage: React.FC = () => {
   };
 
   if (loading) {
+    if (creating) {
+      const stages = [
+        { label: '正在分析诊断报告...', duration: 3000 },
+        { label: 'AI正在润色优化简历...', duration: 20000 },
+        { label: '生成润色报告...', duration: 2000 },
+      ];
+      return <ProgressLoading stages={stages} />;
+    }
     return (
       <div className="max-w-4xl mx-auto px-4 py-20">
         <LoadingSpinner size="lg" text="加载润色结果..." />

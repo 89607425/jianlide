@@ -2,7 +2,7 @@
 
 import React, { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import LoadingSpinner from '../components/LoadingSpinner';
+import ProgressLoading from '../components/ProgressLoading';
 
 const ALLOWED_EXTS = ['.pdf', '.docx'];
 
@@ -107,13 +107,21 @@ const UploadPage: React.FC = () => {
   };
 
   if (uploading || diagnosing) {
+    const uploadStages = [
+      { label: '正在上传简历文件...', duration: 2000 },
+      { label: '正在解析文档内容...', duration: 3000 },
+      { label: 'AI正在分析诊断简历...', duration: 25000 },
+      { label: '生成诊断报告...', duration: 2000 },
+    ];
+    const diagnoseStages = [
+      { label: '正在分析ATS通过率...', duration: 6000 },
+      { label: '正在评估内容质量...', duration: 7000 },
+      { label: '正在分析项目经历...', duration: 6000 },
+      { label: '正在评估岗位匹配度...', duration: 6000 },
+      { label: '生成诊断报告...', duration: 2000 },
+    ];
     return (
-      <div className="max-w-2xl mx-auto px-4 py-20">
-        <LoadingSpinner
-          size="lg"
-          text={uploading ? '正在上传简历...' : 'AI正在诊断简历，请稍候（约30秒）...'}
-        />
-      </div>
+      <ProgressLoading stages={uploading ? uploadStages : diagnoseStages} />
     );
   }
 
