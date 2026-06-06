@@ -1,0 +1,43 @@
+sequenceDiagram
+    actor User as 用户
+    participant FE as 前端
+    participant API as FastAPI
+    participant Parser as PDFParserService
+    participant AI as AIService
+    participant DB as MySQL
+
+    User->>FE: 上传PDF简历
+    FE->>API: POST /api/v1/resumes/upload (multipart)
+    API->>DB: 保存文件，创建resume记录(status=0)
+    API-->>FE: 返回 resume_id
+
+    API->>Parser: 异步调用 parse(file_bytes)
+    Parser->>Parser: _extract_text() 提取文本
+    Parser->>Parser: _split_sections() 分段解析
+    Parser->>DB: 更新resume(status=1, parsed_data, raw_text)
+
+    FE->>API: POST /api/v1/diagnoses {resume_id, target_job}
+    API->>DB: 查询resume记录
+    API->>AI: diagnose(resume.raw_text, target_job)
+    AI->>AI: 构建Prompt + 调用DeepSeek-V3
+    AI-->>API: 返回诊断JSON
+    API->>API: 校验JSON Schema
+    API->>DB: 创建diagnosis记录(含四维分数+detail)
+    API-->>FE: 返回诊断结果(免费预览)
+
+    FE->>FE: 展示总分+前2条问题
+    FE->>FE: 显示"解锁完整报告"按钮
+
+    User->>FE: 点击"解锁完整报告"
+    FE->>API: POST /api/v1/payment/orders {product_type=1}
+    API->>DB: 创建order记录
+    API-->>FE: 返回order_no
+
+    FE->>API: POST /api/v1/payment/mock-pay {order_no}
+    API->>DB: 更新order(status=1), diagnosis(is_unlocked=1)
+    API-->>FE: 支付成功
+
+    FE->>API: GET /api/v1/diagnoses/{id}
+    API->>DB: 查询diagnosis(已解锁)
+    API-->>FE: 返回完整诊断报告
+    FE->>FE: 展示完整诊断详情

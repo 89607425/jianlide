@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install)",
+      "Bash(npx tsc:*)",
+      "Bash(npm run build)",
+      "Bash(python3 -c \"from app.main import app; print(''Backend imports OK'')\")",
+      "Bash(python3 -m py_compile app/services/diagnosis_service.py)",
+      "Bash(python3:*)",
+      "Bash(python3 -m py_compile app/routers/auth.py)",
+      "Bash(pip install --upgrade openai)",
+      "Bash(uvicorn:*)",
+      "Bash(source:*)",
+      "Bash(conda activate:*)",
+      "Bash(curl:*)",
+      "Bash(lsof:*)",
+      "Bash(pip install python-docx)",
+      "Bash(pip install:*)",
+      "Read(//System/Library/Fonts/Supplemental/**)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

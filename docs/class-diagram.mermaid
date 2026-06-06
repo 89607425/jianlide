@@ -1,0 +1,101 @@
+classDiagram
+    class User {
+        +int id
+        +str phone
+        +str password_hash
+        +str nickname
+        +int member_type
+        +datetime created_at
+        +datetime updated_at
+    }
+
+    class Resume {
+        +int id
+        +int user_id
+        +str file_name
+        +str file_path
+        +str raw_text
+        +dict parsed_data
+        +int status
+        +datetime created_at
+    }
+
+    class Diagnosis {
+        +int id
+        +int resume_id
+        +int ats_score
+        +int content_score
+        +int project_score
+        +int match_score
+        +int total_score
+        +dict detail
+        +int is_unlocked
+        +datetime created_at
+    }
+
+    class PolishResult {
+        +int id
+        +int resume_id
+        +str polished_text
+        +dict diff_data
+        +datetime created_at
+    }
+
+    class Order {
+        +int id
+        +int user_id
+        +str order_no
+        +int product_type
+        +float amount
+        +int pay_channel
+        +int status
+        +str transaction_id
+        +datetime created_at
+        +datetime paid_at
+    }
+
+    class PDFParserService {
+        +parse(file_bytes: bytes) dict
+        -_extract_text(file_bytes: bytes) str
+        -_split_sections(raw_text: str) dict
+        -_extract_contact(text: str) dict
+    }
+
+    class AIService {
+        -client: OpenAI
+        +__init__()
+        +diagnose(resume_text: str, target_job: str) dict
+        +polish(resume_text: str, diagnosis: dict) dict
+        -_call_model(messages: list) str
+        -_validate_json(response: str, schema: dict) dict
+    }
+
+    class DiagnosisService {
+        +create_diagnosis(resume_id: int, target_job: str) Diagnosis
+        +get_diagnosis(diagnosis_id: int, user_id: int) dict
+        +unlock_diagnosis(diagnosis_id: int, user_id: int) dict
+        -_build_free_response(diagnosis: Diagnosis) dict
+        -_build_full_response(diagnosis: Diagnosis) dict
+    }
+
+    class PolishService {
+        +create_polish(resume_id: int) PolishResult
+        +get_polish(polish_id: int, user_id: int) PolishResult
+    }
+
+    class PaymentService {
+        +create_order(user_id: int, product_type: int, resume_id: int) Order
+        +mock_pay(order_no: str) Order
+        +verify_payment(order_no: str) bool
+    }
+
+    User "1" --> "*" Resume : owns
+    Resume "1" --> "*" Diagnosis : generates
+    Resume "1" --> "*" PolishResult : generates
+    User "1" --> "*" Order : places
+    PDFParserService --> Resume : parses into
+    AIService --> DiagnosisService : powers
+    AIService --> PolishService : powers
+    DiagnosisService --> Diagnosis : manages
+    PolishService --> PolishResult : manages
+    PaymentService --> Order : manages
